@@ -27,6 +27,7 @@ from QIT.utils.APICode import APICodeClass
 from django.utils import timezone
 from datetime import datetime
 import ast
+from .sms_master import sendSMS
 # from django.core.mail import send_mail
 # from QIT.settings import EMAIL_HOST_USER
 # Custom Authentication class
@@ -73,12 +74,21 @@ def GenerateOTP(request):
             },status=400)
         email = request.data["e_mail"]
         role = request.data["role"]
+        if role.upper() != "COMPANY":
+            mobile = request.data["mobile"]
         if not email:
             return Response({
                 'Status':400,
                 'StatusMsg':"Email is required.",
                 "APICode":APICodeClass.Auth_Generate_OTP.value
             },status=400)
+        if role.upper() != "COMPANY":
+            if not mobile and role.upper() != "COMPANY":
+                return Response({
+                    'Status':400,
+                    'StatusMsg':"Mobile is required.",
+                    "APICode":APICodeClass.Auth_Generate_OTP.value
+                },status=400)
         if not role:
             return Response({
                 'Status':400,
@@ -118,6 +128,8 @@ def GenerateOTP(request):
         message1 =  email_template(email,message,new_OTP)
         # Send_OTP(email,f"OTP (One Time Password)",message1)
         send_html_mail(f"OTP (One Time Password)",message1,[email])
+        if role.upper() != "COMPANY":
+            sendSMS(new_OTP,mobile)
         return Response({
             'Status':200,
             'StatusMsg':f"OTP sent successfully to {email}.",
@@ -206,7 +218,6 @@ def VerifyOTP(request):
                 'Status':400,
                 'StatusMsg':"Payload is required",
                 "APICode":APICodeClass.Auth_Verify_OTP.value
-
             },status=400)
         if not body_data.get("e_mail"):
             return Response({
