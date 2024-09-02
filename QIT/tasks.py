@@ -108,7 +108,7 @@ def reminder_notification():
 def auto_approval():
     print("==============")
     try:
-        configData = QitConfigmaster.objects.filter(manualverification='N')
+        configData = QitConfigmaster.objects.filter(approvalduration='ON')
         if configData.exists():
             for config in configData:
                 today = timezone.now().date()
