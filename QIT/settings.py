@@ -221,4 +221,11 @@ CELERY_BEAT_SCHEDULE = {
         # 'schedule': crontab(minute='*'),  # Run every minute
         'schedule': crontab(hour=8, minute=0),
     },
+    'send_notification_reminder': {
+        'task': 'QIT.tasks.auto_approval',
+        'schedule': crontab(minute='*/30')
+        # 'schedule': crontab(minute='*')
+        # 'schedule': crontab(minute='5,35')  # Run every minute
+        # 'schedule': crontab(hour=8, minute=0),
+    },
 }

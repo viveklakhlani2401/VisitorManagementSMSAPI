@@ -1,11 +1,16 @@
 from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
-from QIT.models import QitVisitorinout,QitUsermaster,QitCompany
+from QIT.models import QitVisitorinout,QitUsermaster,QitCompany,QitConfigmaster
 import os
 from QIT.Views.template import send_reminder,send_reminder_user
 from QIT.Views.send_email import send_html_mail
 from datetime import datetime
+from django.db.models.functions import Cast
+from django.db.models import DateField
+import pytz
+from QIT.Views.common import send_visitors
+from QIT.Views.visitor_master import send_email_notification_Verification
 
 @shared_task
 def update_checkin_status():
@@ -96,5 +101,45 @@ def reminder_notification():
                     send_html_mail(f"Reminder: Visitor Registration",message2,emails)
             # else:
             #     print("No visitors found matching the update criteria.")
+    except Exception as e:
+        print("An error occurred: {}".format(str(e)))
+
+@shared_task
+def auto_approval():
+    print("==============")
+    try:
+        configData = QitConfigmaster.objects.filter(manualverification='N')
+        if configData.exists():
+            for config in configData:
+                today = timezone.now().date()
+                queryset = QitVisitorinout.objects.annotate(entrydate_date=Cast('timeslot', DateField())).filter(
+                    cmptransid=config.cmptransid, status="P", entrydate_date__gte=today
+                ).select_related('cmpdepartmentid', 'visitortansid')
+                for visitor in queryset:
+                    timeslot = visitor.timeslot
+                    if timeslot:
+                        try:
+                            ist = pytz.timezone('Asia/Kolkata')
+                            if isinstance(timeslot, str):
+                                timeslot = datetime.strptime(timeslot, "%Y-%m-%d %H:%M:%S")
+ 
+                            if timeslot.tzinfo is None:
+                                timeslot_datetime_ist = ist.localize(timeslot)
+                            else:
+                                timeslot_datetime_ist = timeslot.astimezone(ist)
+                            timeslot_datetime_utc = timeslot_datetime_ist.astimezone(pytz.utc)
+                            current_datetime_utc = timezone.now()
+                            two_hours_before_now = current_datetime_utc - timedelta(hours=2)
+                            
+                            # Check if timeslot is before 2 hours ago
+                            if timeslot_datetime_utc > two_hours_before_now:
+                                visitor.checkintime = datetime.now()
+                                if visitor.createdby != None:
+                                    visitor.status = "A"
+                                    visitor.save()
+                                    send_visitors(visitor,config.cmptransid.transid,"verify")
+                                    send_email_notification_Verification(visitor,config.cmptransid.transid,"A",visitor.createdby)
+                        except Exception as e:
+                            print("An error occurred: {}".format(str(e)))
     except Exception as e:
         print("An error occurred: {}".format(str(e)))
