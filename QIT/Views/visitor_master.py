@@ -54,8 +54,17 @@ def Save_Visitor(request):
             # Make it timezone aware if necessary (depending on your settings)
             today_start = make_aware(datetime.combine(today, datetime.min.time()))
             today_end = make_aware(datetime.combine(today, datetime.max.time()))
+            companyEntry = QitCompany.objects.filter(transid=body_data["company_id"]).first()
+            if not companyEntry:
+                return Response( {
+                    'isSaved':"N",
+                    'Status': 400,
+                    'StatusMsg': "Company not found",
+                    'APICode':APICodeClass.Visitor_Save.value
+                }, status=400)
    
-            alreadyEntry = QitVisitorinout.objects.filter(visitortansid=alredyEmailChk,entrydate__range=(today_start, today_end),status="P").order_by("-entrydate")
+            alreadyEntry = QitVisitorinout.objects.filter(visitortansid=alredyEmailChk,entrydate__range=(today_start, today_end),status="P",cmptransid=companyEntry).order_by("-entrydate")
+ 
  
             if alreadyEntry:
                 return Response({
