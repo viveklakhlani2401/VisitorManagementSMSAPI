@@ -846,7 +846,10 @@ def send_email_notification_email(visitor,departmentId,cmpid):
         statusLink = os.getenv("FRONTEND_URL") + '#/checkstatus/?cmpId=' + companyEntry.qrstring
         verifyLink = os.getenv("FRONTEND_URL") +'#/Verify-Visitors'
         users = None
-        users = QitUsermaster.objects.filter(username=visitor['cnctperson'],cmpdeptid=departmentId,cmptransid=cmpid)
+        if visitor['cnctperson'] == "Administrator":
+            users = QitCompany.objects.filter(transid=cmpid)
+        else:
+            users = QitUsermaster.objects.filter(username=visitor['cnctperson'],cmpdeptid=departmentId,cmptransid=cmpid)
         emails = []
         if users:
             for data in users:
@@ -856,7 +859,7 @@ def send_email_notification_email(visitor,departmentId,cmpid):
             for data in users:
                 emails.append(data.e_mail)
         # emails.append(visitor['vEmail'])
-        
+        print("users : ",users)
         message1 =  send_reminder(visitor,f"Thank you for registering to visit {companyEntry.bname} Your visit details are as follows:",companyEntry.e_mail,companyEntry.bname,"Your registration is currently pending approval",f"You can check the status of your registration by clicking the following link: <a href={statusLink} class='button'>Check Status</a>",f"Please wait for the approval. If you have any questions or need further information, please do not hesitate to contact us at {companyEntry.e_mail}")
         message2 =  send_reminder_user(visitor,f"A visitor has registered to meet you at {companyEntry.bname} Your approval is required to confirm the visit. Please review the details below and provide your approval at your earliest convenience.",companyEntry.e_mail,companyEntry.bname,"Upon your approval, the visitor will be notified to enter the premises. Thank you for your prompt attention to this matter.",f"To verify and approve the visitor, please click the following link: <a href={verifyLink} class='button'>Check Status</a>")
         # print("emails : ==> ",emails)
@@ -884,7 +887,10 @@ def send_email_notification_email_edited(visitor,departmentId,cmpid):
         statusLink = os.getenv("FRONTEND_URL") + '#/checkstatus/?cmpId=' + companyEntry.qrstring
         verifyLink = os.getenv("FRONTEND_URL") +'#/Verify-Visitors'
         users = None
-        users = QitUsermaster.objects.filter(username=visitor['cnctperson'],cmptransid=cmpid)
+        if visitor['cnctperson'] == "Administrator":
+            users = QitCompany.objects.filter(transid=cmpid)
+        else:
+            users = QitUsermaster.objects.filter(username=visitor['cnctperson'],cmptransid=cmpid)
         emails = []
         if users:
             for data in users:
@@ -975,7 +981,11 @@ def send_email_notification_Verification(inoutentry, cmpid, state, createdby):
                                       f"This it to inform you a visitor has registered to meet you at {companyEntry.bname}. Please review the details below :",
                                       companyEntry.e_mail,
                                       companyEntry.bname,"","")
-            users = QitUsermaster.objects.filter(username=inoutentry.cnctperson,cmptransid=cmpid)
+            users = None
+            if inoutentry.cnctperson == "Administrator":
+                users = QitCompany.objects.filter(transid=cmpid)
+            else:
+                users = QitUsermaster.objects.filter(username=inoutentry.cnctperson,cmptransid=cmpid)
             emails = []
             if users:
                 for data in users:
@@ -1033,7 +1043,11 @@ def send_email_checkin_notification_user(inoutentry, cmpid):
                     f"This it to inform you a visitor has arriaved to meet you at {companyEntry.bname}. Please review the details below :",
                     companyEntry.e_mail,
                     companyEntry.bname,"","")
-        users = QitUsermaster.objects.filter(username=inoutentry.cnctperson,cmptransid=cmpid)
+        users = None
+        if inoutentry.cnctperson == "Administrator":
+            users = QitCompany.objects.filter(transid=cmpid)
+        else:
+            users = QitUsermaster.objects.filter(username=inoutentry.cnctperson,cmptransid=cmpid)
         emails = []
         if users:
             for data in users:

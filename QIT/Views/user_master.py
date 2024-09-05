@@ -387,8 +387,16 @@ def get_user_by_company(request, cmpId):
         
 
         serializer = UserShortDataSerializer(users, many=True)  # Set many=True
+        data = serializer.data  # `data` is now a list of serialized user data (read-only)
+        data = list(data)  # Convert to a mutable list
+        data.append({
+            'transid': companyEntry.transid,
+            'username': 'Administrator',
+            'cmpdeptid': 'Admin'
+        })
+
         return Response({
-            'Data': serializer.data,
+            'Data': data,
             'APICode': APICodeClass.User_GetById.value
         })
 
