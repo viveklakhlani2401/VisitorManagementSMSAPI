@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-
+from django.utils.timezone import now
 from .models import QitCompany,QitOtp,QitUserlogin,QitDepartment,QitUsermaster,QitVisitormaster,QitVisitorinout,QitApiLog,QitConfigmaster,QitMaNotification, QitMasteradmin
 
 class CompanyMasterSerializer(serializers.ModelSerializer):
@@ -144,9 +144,12 @@ class QitVisitorSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         queryset = QitVisitorinout.objects.filter(visitortansid=representation['transid']).order_by("-entrydate").first()
+        today = now().date()
+        # isToday = queryset.entrydate != today) ? "n" : "y"
         # visitormaster = instance.transid
         representation['checkinstatus'] = queryset.checkinstatus
         representation['status'] = queryset.status
+        representation['isToday'] = "N" if queryset.entrydate != today else "Y"
         # representation['vName'] = visitormaster.vname
         # representation['visitor_phone1'] = visitormaster.phone1
         # representation['visitor_cmpname'] = visitormaster.vcmpname
