@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
+import pytz
+from dateutil import parser
+from django.utils import timezone
 from .models import QitCompany,QitOtp,QitUserlogin,QitDepartment,QitUsermaster,QitVisitormaster,QitVisitorinout,QitApiLog,QitConfigmaster,QitMaNotification, QitMasteradmin
 
 class CompanyMasterSerializer(serializers.ModelSerializer):
@@ -149,7 +152,8 @@ class QitVisitorSerializer(serializers.ModelSerializer):
         # visitormaster = instance.transid
         representation['checkinstatus'] = queryset.checkinstatus
         representation['status'] = queryset.status
-        representation['isToday'] = "N" if queryset.entrydate != today else "Y"
+        representation['isToday'] = "N" if queryset.timeslot != today else "Y"
+        # representation['isToday'] = "N" if queryset.entrydate != today else "Y"
         # representation['vName'] = visitormaster.vname
         # representation['visitor_phone1'] = visitormaster.phone1
         # representation['visitor_cmpname'] = visitormaster.vcmpname
@@ -253,12 +257,31 @@ class QitVisitorinoutGETSerializer(serializers.ModelSerializer):
         representation['vEmail'] = visitormaster.e_mail
         representation['deptId'] = representation.pop("cmpdepartmentid")
         representation['deptName'] = departmentMaster.deptname
+        representation['timeslot'] =  representation.pop("timeslot") 
+        
+        timeslot_datetime = parser.parse(representation['timeslot'])
+
+        if timeslot_datetime.tzinfo is None:
+            ist = pytz.timezone('Asia/Kolkata')
+            timeslot_datetime_ist = ist.localize(timeslot_datetime)
+        else:
+            timeslot_datetime_ist = timeslot_datetime.astimezone(pytz.timezone('Asia/Kolkata'))
+
+        timeslot_datetime_utc = timeslot_datetime_ist.astimezone(pytz.utc)
+        current_datetime_utc = timezone.now()
+        state = representation.pop('status')
+
+        if timeslot_datetime_utc < current_datetime_utc and state == "P":
+            state = 'C'
+
         status_mapping = {
             'P': 'Pending',
             'A': 'Approved',
-            'R': 'Rejected'
+            'R': 'Rejected',
+            'C': 'Canceled'
         }
-        representation['state'] = status_mapping.get(representation.pop('status'), None)
+        representation['state'] = status_mapping.get(state, None)
+
         state_mapping = {
             'I': 'Check in',
             'O': 'Check Out'
@@ -266,7 +289,6 @@ class QitVisitorinoutGETSerializer(serializers.ModelSerializer):
         representation['status'] = state_mapping.get(representation.pop('checkinstatus'), None)
         representation['addedBy'] = 'Company' if representation.pop("createdby") else 'External'
         representation['cnctperson'] =  representation.pop("cnctperson") 
-        representation['timeslot'] =  representation.pop("timeslot") 
         representation['anyhardware'] =  representation.pop("anyhardware") 
         representation['vavatar'] =  representation.pop("vavatar") 
         representation['purposeofvisit'] =  representation.pop("purposeofvisit") 
