@@ -864,18 +864,19 @@ def getWebsocketTest(request):
     message = "Hello"  # Message to be sent
 
     channel_layer = get_channel_layer()
-    for user_id in user_ids:       
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user_id}",
-            {
-                'type': 'send.message',
-                'text': {
-            'type': 'initial_data',
-            # 'users': users,
-            'notification': message
-        },
-            }
-        )
+    # uncomment this
+    # for user_id in user_ids:       
+    #     async_to_sync(channel_layer.group_send)(
+    #         f"user_{user_id}",
+    #         {
+    #             'type': 'send.message',
+    #             'text': {
+    #         'type': 'initial_data',
+    #         # 'users': users,
+    #         'notification': message
+    #     },
+    #         }
+    #     )
 
     return Response({"status": True}, status=status.HTTP_200_OK)
 
@@ -904,13 +905,14 @@ def send_notification(notifications,cmptransid):
             'n_date_time': n_date_time,
             'chk_status': notification.chk_status,
         }
-        async_to_sync(channel_layer.group_send)(
-            f"user_{notification.receiver_user_id}_cmp{cmptransid}",
-            {
-                'type': 'new_notification',
-                'notification': notification_dict
-            }
-        )
+        # uncomment this
+        # async_to_sync(channel_layer.group_send)(
+        #     f"user_{notification.receiver_user_id}_cmp{cmptransid}",
+        #     {
+        #         'type': 'new_notification',
+        #         'notification': notification_dict
+        #     }
+        # )
 
 def send_sa_notification(notifications,cmptransid):
     channel_layer = get_channel_layer()
@@ -922,13 +924,14 @@ def send_sa_notification(notifications,cmptransid):
             'n_date_time': n_date_time,
             'chk_status': notification.chk_status,
         }
-        async_to_sync(channel_layer.group_send)(
-            f"sa_{notification.receiver_ma_id}_cmp{cmptransid}",
-            {
-                'type': 'new_sa_notification',
-                'notification': notification_dict
-            }
-        )
+        # uncomment this
+        # async_to_sync(channel_layer.group_send)(
+        #     f"sa_{notification.receiver_ma_id}_cmp{cmptransid}",
+        #     {
+        #         'type': 'new_sa_notification',
+        #         'notification': notification_dict
+        #     }
+        # )
 
 def send_visitors(visitor,cmptransid,type):
     channel_layer = get_channel_layer()
@@ -947,25 +950,28 @@ def send_visitors(visitor,cmptransid,type):
             'reason': visitor.reason,
             'checkinstatus':state_mapping.get(visitor.checkinstatus, None)
         }
-        for user_id in user_ids:
-            if user_id is not None:
-                async_to_sync(channel_layer.group_send)(
-                    f"user_{user_id.transid}_cmp{cmptransid}",
-                    {
-                        'type': 'verify_visitor',
-                        'visitor': visitor_dict
-                    }
-                )
+        # uncomment this
+        # for user_id in user_ids:
+        #     if user_id is not None:
+                # async_to_sync(channel_layer.group_send)(
+                #     f"user_{user_id.transid}_cmp{cmptransid}",
+                #     {
+                #         'type': 'verify_visitor',
+                #         'visitor': visitor_dict
+                #     }
+                # )
     if type == "add":
-        for user_id in user_ids:
-            if user_id is not None:
-                async_to_sync(channel_layer.group_send)(
-                    f"user_{user_id.transid}_cmp{cmptransid}",
-                    {
-                        'type': 'new_visitor',
-                        'visitor': visitor
-                    }
-                )
+        print()
+        # uncomment this
+        # for user_id in user_ids:
+        #     if user_id is not None:
+        #         async_to_sync(channel_layer.group_send)(
+        #             f"user_{user_id.transid}_cmp{cmptransid}",
+        #             {
+        #                 'type': 'new_visitor',
+        #                 'visitor': visitor
+        #             }
+        #         )
 
 def chk_user_comp_id(user_email):
     user  = QitUserlogin.objects.filter(e_mail=user_email).first()
