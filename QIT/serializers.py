@@ -148,11 +148,13 @@ class QitVisitorSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         queryset = QitVisitorinout.objects.filter(visitortansid=representation['transid']).order_by("-entrydate").first()
         today = now().date()
+        print(today)
+        print(queryset.timeslot)
         # isToday = queryset.entrydate != today) ? "n" : "y"
         # visitormaster = instance.transid
         representation['checkinstatus'] = queryset.checkinstatus
         representation['status'] = queryset.status
-        representation['isToday'] = "N" if queryset.timeslot != today else "Y"
+        representation['isToday'] = "N" if queryset.timeslot.date() != today else "Y"
         # representation['isToday'] = "N" if queryset.entrydate != today else "Y"
         # representation['vName'] = visitormaster.vname
         # representation['visitor_phone1'] = visitormaster.phone1
