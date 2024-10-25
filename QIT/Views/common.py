@@ -1007,7 +1007,7 @@ def getAllErrorCode(request):
 
 # Save default config data for company
 def create_comp_config(cmptransid):
-    compConfig = QitConfigmaster(cmptransid=cmptransid,approvalduration="O",manualverification="N",messagetype="E")
+    compConfig = QitConfigmaster(cmptransid=cmptransid,approvalduration="OFF",manualverification="N",messagetype="E")
     compConfig.save()
     return compConfig
 

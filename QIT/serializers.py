@@ -240,7 +240,7 @@ class QitVisitorinoutPOSTSerializer(serializers.ModelSerializer):
 class QitVisitorinoutGETSerializer(serializers.ModelSerializer):
     class Meta:
         model = QitVisitorinout
-        fields = ['transid','cnctperson','cmpdepartmentid','timeslot','purposeofvisit','anyhardware','vavatar','checkinstatus','reason','status','entrydate','createdby','checkintime']
+        fields = ['transid','cnctperson','cmpdepartmentid','timeslot','purposeofvisit','anyhardware','vavatar','checkinstatus','reason','status','entrydate','createdby','checkintime','checkouttime']
 
       
     def to_representation(self, instance):
@@ -298,6 +298,8 @@ class QitVisitorinoutGETSerializer(serializers.ModelSerializer):
         entryDate = representation.pop('entrydate')
         checkinDate = representation.pop('checkintime')
         representation['sortDate'] = checkinDate if checkinDate else entryDate
+        representation['checkintime'] = checkinDate 
+        representation['checkouttime'] = representation.pop("checkouttime") 
         # representation['vCmptransid'] = visitormaster.cmptransid_id
  
         return representation
