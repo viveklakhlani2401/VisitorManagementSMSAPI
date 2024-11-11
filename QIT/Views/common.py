@@ -479,7 +479,7 @@ def login_view(request):
                         "APICode":APICodeClass.Auth_LogIn.value
                     }, status=status.HTTP_404_NOT_FOUND)
 
-                obj = QitAuthenticationrule.objects.filter(user_id=chkUser.transid,cmptransid=cmpId).first()
+                obj = QitAuthenticationrule.objects.filter(user_id=chkUser.transid,cmptransid=cmpId,userrole=user.userrole).first()
                 
                 # obj = QitAuthenticationrule.objects.all()
                 # obj_list = list(obj.values())

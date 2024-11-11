@@ -129,6 +129,17 @@ REST_FRAMEWORK = {
 #         'PORT': '3306',       # Change this to your MySQL server's port
 #     }
 # }
+# pymysql.install_as_MySQLdb()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'QIT_VMS',
+#         'USER': 'admin',
+#         'PASSWORD': 'wBoymevujY3TZpcIxNEl',
+#         'HOST': 'visitormgmtdb.cd6aqkmesvl7.ap-south-1.rds.amazonaws.com',  # Change this to your MySQL server's hostname or IP address
+#         'PORT': '3306',       # Change this to your MySQL server's port
+#     }
+# }
 pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {

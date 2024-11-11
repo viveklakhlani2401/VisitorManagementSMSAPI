@@ -36,8 +36,8 @@ def update_checkin_status():
     logger.info("update_checkin_status task started.")
     print("========================================================")
     now = timezone.now()
-    eight_hours_ago = now - timedelta(minutes=1)
-    # eight_hours_ago = now - timedelta(hours=8)
+    # eight_hours_ago = now - timedelta(minutes=1)
+    eight_hours_ago = now - timedelta(hours=8)
     visitors_to_update = QitVisitorinout.objects.filter(
         entrydate__lt=eight_hours_ago,
         status='A',
